@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "309013560178",
+    "project_id": "stocktv-rocksoft",
+    "storage_bucket": "stocktv-rocksoft.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:309013560178:android:91dc75d6d66e6443c27beb",
+        "android_client_info": {
+          "package_name": "com.example.stock_tv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "309013560178-jjvn7d7uej26cd711h8j424pu72dce7l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOFVOk-JiWyEo6KYHVuY9oYXwKz6qRxNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "309013560178-jjvn7d7uej26cd711h8j424pu72dce7l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
