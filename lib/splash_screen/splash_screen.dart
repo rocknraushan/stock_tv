@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   startTimer() {
     Timer(
-      const Duration(seconds: 6),
+      const Duration(seconds: 5),
           () async {
         //if the user is already authenticate send user to home screen
         if (firebaseAuth.currentUser != null) {
@@ -55,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
         _coffeeController.stop();
         copAnimated = true;
         setState(() {});
-        Future.delayed(const Duration(seconds: 1), () {
+        Future.delayed(const Duration(seconds: 3), () {
           animateCafeText = true;
           setState(() {});
         });
@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
         children: [
           // White Container top half
           AnimatedContainer(
-            duration: const Duration(seconds: 1),
+            duration: const Duration(seconds: 2),
             height: copAnimated ? screenHeight / 1.9 : screenHeight,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -99,16 +99,18 @@ class _SplashScreenState extends State<SplashScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Visibility(
-                      visible: !copAnimated,
-                      child: Lottie.asset(
-                        'assets/stocklottie.json',
-                        controller: _coffeeController,
-                        onLoaded: (composition) {
-                          _coffeeController
-                            ..duration = composition.duration
-                            ..forward();
-                        },
+                    Center(
+                      child: Visibility(
+                        visible: !copAnimated,
+                        child: Lottie.asset(
+                          'assets/stocklottie.json',
+                          controller: _coffeeController,
+                          onLoaded: (composition) {
+                            _coffeeController
+                              ..duration = composition.duration
+                              ..forward();
+                          },
+                        ),
                       ),
                     ),
                     // Visibility(
@@ -178,43 +180,7 @@ class _BottomPart extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 50.0),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    "Login ".toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 25),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: ((context) => const LoginScreen())));
-                    },
-                    child: Container(
-                      height: 85.0,
-                      width: 85.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.0),
-                      ),
-                      child: const Icon(
-                        Icons.chevron_right,
-                        size: 50.0,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             const SizedBox(height: 50.0),
           ],
         ),

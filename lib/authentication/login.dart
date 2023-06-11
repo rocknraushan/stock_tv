@@ -94,25 +94,16 @@ class _LoginScreenState extends State<LoginScreen> {
           (snapshot) async {
         //check if the user is user
         if (snapshot.exists) {
-          if (snapshot.data()!["status"] == "approved") {
-            await sharedPreferences!.setString("uid", currentUser.uid);
-            await sharedPreferences!
-                .setString("email", snapshot.data()!["email"]);
-            await sharedPreferences!
-                .setString("name", snapshot.data()!["name"]);
-            await sharedPreferences!
-                .setString("photoUrl", snapshot.data()!["photoUrl"]);
-            List<String> userCartList =
-            snapshot.data()!["userCart"].cast<String>();
-            await sharedPreferences!.setStringList("userCart", userCartList);
+            // await sharedPreferences!.setString("uid", currentUser.uid);
+            // await sharedPreferences!
+            //     .setString("email", snapshot.data()!["email"]);
+            // await sharedPreferences!
+            //     .setString("name", snapshot.data()!["name"]);
+            // await sharedPreferences!
+            //     .setString("photoUrl", snapshot.data()!["photoUrl"]);
 
-            Navigator.pushNamedAndRemoveUntil(context, HomeScreen.id, (route) => false);
-          } else {
-            firebaseAuth.signOut();
-            Navigator.pop(context);
+          Navigator.pushReplacementNamed(context, HomeScreen.id);
 
-            Fluttertoast.showToast(msg: "Your account has been blocked!");
-          }
         }
         //if user is not a user
         else {

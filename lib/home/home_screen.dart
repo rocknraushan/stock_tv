@@ -9,16 +9,16 @@ import 'package:stock_tv/utils/app_theme.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 import 'package:stock_tv/global/global.dart';
 
+import '../authentication/login.dart';
 import '../global/global.dart';
 
 class HomeScreen extends StatelessWidget {
   static const id = 'HomeScreen';
   const HomeScreen({super.key});
 
-
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       home: BottomSelectionWidget(),
@@ -27,8 +27,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class BottomSelectionWidget extends StatefulWidget {
-
-   BottomSelectionWidget({super.key});
+  BottomSelectionWidget({super.key});
 
   @override
   State<BottomSelectionWidget> createState() => _BottomSelectionWidgetState();
@@ -36,42 +35,56 @@ class BottomSelectionWidget extends StatefulWidget {
 
 class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+  bool isUserLoggedOut = false;
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-    ProfileModel? profileData;
+  ProfileModel? profileData;
 
   final CollectionReference _userCollection =
-  FirebaseFirestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('users');
 
   //Method to fetch user data from database
   Future<void> getUser() async {
-    DocumentSnapshot userSnapshot =
-    await _userCollection.doc(firebaseAuth.currentUser?.uid.toString()).get();
+    DocumentSnapshot userSnapshot = await _userCollection
+        .doc(firebaseAuth.currentUser?.uid.toString())
+        .get();
     if (userSnapshot.exists) {
-      Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
-     setState(() {
-      profileData = ProfileModel(
-          email: userData?['email'],
-          name: userData?['name'],
-          photoUrl: userData?['photoUrl'],
-          uid: userData?['uid']);
-
-     });
+      Map<String, dynamic>? userData =
+          userSnapshot.data() as Map<String, dynamic>?;
+      setState(() {
+        profileData = ProfileModel(
+            email: userData?['email'],
+            name: userData?['name'],
+            photoUrl: userData?['photoUrl'],
+            uid: userData?['uid']);
+      });
     }
   }
 
-@override
+  @override
   void initState() {
     // TODO: implement initState
-  super.initState();
-  getUser();
+    super.initState();
+    getUser();
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    // profileData = null;
+    super.dispose();
+  }
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    if (isUserLoggedOut) {
 
-
+    }
+  }
   @override
   Widget build(BuildContext context) {
-
     String? email = profileData?.email;
     String? pUrl = profileData?.photoUrl;
     String? name = profileData?.name;
@@ -87,6 +100,17 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
         appBar: AppBar(
           title: const Text('Yahoo Finance Screener'),
           backgroundColor: const Color.fromRGBO(0, 126, 106, 1),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  firebaseAuth.signOut().then((value) {
+                    isUserLoggedOut = true;
+                    Navigator.pushNamed(context, LoginScreen.id);
+
+                  });
+                },
+                icon: const Icon(Icons.logout))
+          ],
         ),
         body: Container(
           padding: const EdgeInsets.all(20.0),
@@ -154,7 +178,8 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
                                 ],
                               ),
                               child: CircleAvatar(
-                                backgroundImage: NetworkImage(pUrl!,
+                                backgroundImage: NetworkImage(
+                                  pUrl!,
                                 ),
                               ),
                             ),
@@ -162,32 +187,36 @@ class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
                         ),
                       ),
                     ])),
-                const SizedBox(height: 10,),
-                const Divider(thickness: 5,color: Colors.grey),
-                 Text(name!,
-                 textAlign: TextAlign.center,
-                 style: const TextStyle(
-                   color: Color.fromRGBO(0, 126, 105, 1),
-                   fontWeight: FontWeight.bold,
-                   fontSize: 20
-                 ),),
-                const SizedBox(height: 10,),
-
-                Text('email:$email',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.lightGreen,
-                  letterSpacing: 1
-                ),),
-                const SizedBox(height: 10,),
-                Text('UserId:$userid',
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(thickness: 5, color: Colors.grey),
+                Text(
+                  name!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.lightGreen,
-                      letterSpacing: 1
-                  ),),
+                      color: Color.fromRGBO(0, 126, 105, 1),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'email:$email',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 15, color: Colors.lightGreen, letterSpacing: 1),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'UserId:$userid',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 15, color: Colors.lightGreen, letterSpacing: 1),
+                ),
               ],
             ),
           ),
