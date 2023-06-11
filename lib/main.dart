@@ -1,12 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stock_tv/splash_screen/splash_screen.dart';
 import 'package:stock_tv/utils/app_theme.dart';
 import 'package:stock_tv/utils/route_generator.dart';
-import 'api_manager.dart';
+// import 'api_manager.dart';
 import 'firebase_options.dart';
+// import 'package:stock_tv/global/global.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

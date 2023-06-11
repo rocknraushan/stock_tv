@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:stock_tv/database/database_manager.dart';
+import 'package:stock_tv/model/profile_model.dart';
 import 'package:stock_tv/utils/app_theme.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
+import 'package:stock_tv/global/global.dart';
 
-
+import '../global/global.dart';
 
 class HomeScreen extends StatelessWidget {
   static const id = 'HomeScreen';
@@ -13,7 +18,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return  MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       home: BottomSelectionWidget(),
@@ -22,58 +27,171 @@ class HomeScreen extends StatelessWidget {
 }
 
 class BottomSelectionWidget extends StatefulWidget {
-  const BottomSelectionWidget({super.key});
+
+   BottomSelectionWidget({super.key});
 
   @override
   State<BottomSelectionWidget> createState() => _BottomSelectionWidgetState();
 }
 
 class _BottomSelectionWidgetState extends State<BottomSelectionWidget> {
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
+    ProfileModel? profileData;
+
+  final CollectionReference _userCollection =
+  FirebaseFirestore.instance.collection('users');
+
+  //Method to fetch user data from database
+  Future<void> getUser() async {
+    DocumentSnapshot userSnapshot =
+    await _userCollection.doc(firebaseAuth.currentUser?.uid.toString()).get();
+    if (userSnapshot.exists) {
+      Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+     setState(() {
+      profileData = ProfileModel(
+          email: userData?['email'],
+          name: userData?['name'],
+          photoUrl: userData?['photoUrl'],
+          uid: userData?['uid']);
+
+     });
+    }
+  }
+
+@override
+  void initState() {
+    // TODO: implement initState
+  super.initState();
+  getUser();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
+
+    String? email = profileData?.email;
+    String? pUrl = profileData?.photoUrl;
+    String? name = profileData?.name;
+    String? userid = profileData?.uid;
+
+    if (profileData == null) {
+      // Data is still loading, show a loading indicator or placeholder widget
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yahoo Finance Screener'),
-        backgroundColor: const Color.fromRGBO(0, 126, 106, 1),
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: PageView(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          onPageChanged: _onItemSelected,
-          children: const [
-            YahooFinanceServiceWidget(),
-            DTOSearch(),
-            RawSearch(),
+        appBar: AppBar(
+          title: const Text('Yahoo Finance Screener'),
+          backgroundColor: const Color.fromRGBO(0, 126, 106, 1),
+        ),
+        body: Container(
+          padding: const EdgeInsets.all(20.0),
+          child: PageView(
+            physics: const NeverScrollableScrollPhysics(),
+            controller: _pageController,
+            onPageChanged: _onItemSelected,
+            children: const [
+              YahooFinanceServiceWidget(),
+              DTOSearch(),
+              RawSearch(),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: _onItemSelected,
+          currentIndex: _selectedIndex,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storage),
+              label: 'Service',
+              backgroundColor: Color.fromRGBO(0, 126, 106, 1),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.format_list_numbered),
+              label: 'DTO',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.raw_on,
+              ),
+              label: 'Raw',
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: _onItemSelected,
-        currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.storage),
-            label: 'Service',
-            backgroundColor: Color.fromRGBO(0, 126, 106, 1),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.format_list_numbered),
-            label: 'DTO',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.raw_on,),
-            label: 'Raw',
+        drawer: Drawer(
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.grey,
+            ),
+            child: ListView(
+              children: [
+                Container(
+                    padding: const EdgeInsets.only(top: 25, bottom: 10),
+                    child: Column(children: [
+                      Material(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(50),
+                        ),
+                        elevation: 10,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1),
+                          child: SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.green.withOpacity(0.4),
+                                    offset: const Offset(-10, 10),
+                                    blurRadius: 10,
+                                  )
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                backgroundImage: NetworkImage(pUrl!,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ])),
+                const SizedBox(height: 10,),
+                const Divider(thickness: 5,color: Colors.grey),
+                 Text(name!,
+                 textAlign: TextAlign.center,
+                 style: const TextStyle(
+                   color: Color.fromRGBO(0, 126, 105, 1),
+                   fontWeight: FontWeight.bold,
+                   fontSize: 20
+                 ),),
+                const SizedBox(height: 10,),
 
+                Text('email:$email',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.lightGreen,
+                  letterSpacing: 1
+                ),),
+                const SizedBox(height: 10,),
+                Text('UserId:$userid',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.lightGreen,
+                      letterSpacing: 1
+                  ),),
+              ],
+            ),
           ),
-        ],
-      ),
-      drawer: ,
-    );
+        ));
   }
 
   void _onItemSelected(int index) {
@@ -100,10 +218,10 @@ class _RawSearchState extends State<RawSearch> {
   Widget build(BuildContext context) {
     String ticker = 'GOOG';
     YahooFinanceDailyReader yahooFinanceDataReader =
-    const YahooFinanceDailyReader();
+        const YahooFinanceDailyReader();
 
     Future<Map<String, dynamic>> future =
-    yahooFinanceDataReader.getDailyData(ticker);
+        yahooFinanceDataReader.getDailyData(ticker);
 
     return FutureBuilder(
       future: future,
@@ -191,7 +309,7 @@ class _DTOSearchState extends State<DTOSearch> {
                     itemCount: response.candlesData.length,
                     itemBuilder: (BuildContext context, int index) {
                       YahooFinanceCandleData candle =
-                      response.candlesData[index];
+                          response.candlesData[index];
 
                       return _CandleCard(candle);
                     });
@@ -344,18 +462,18 @@ class _YahooFinanceServiceWidgetState extends State<YahooFinanceServiceWidget> {
                       children: tickerOptions
                           .map(
                             (option) => Container(
-                          margin: const EdgeInsets.all(5),
-                          child: MaterialButton(
-                            child: Text(option),
-                            onPressed: controller.text == option
-                                ? null
-                                : () => setState(() {
-                              controller.text = option;
-                            }),
-                            color: Colors.lightGreen,
-                          ),
-                        ),
-                      )
+                              margin: const EdgeInsets.all(5),
+                              child: MaterialButton(
+                                child: Text(option),
+                                onPressed: controller.text == option
+                                    ? null
+                                    : () => setState(() {
+                                          controller.text = option;
+                                        }),
+                                color: Colors.lightGreen,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
